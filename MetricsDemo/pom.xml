@@ -1,0 +1,465 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hg.activemq</groupId>
+    <artifactId>MetricsDemo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>MetricsDemo</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-version>3.2.13.RELEASE</spring-version>
+        <xbean.version>3.12</xbean.version>
+        <slf4j-version>1.6.6</slf4j-version>
+        <log4j-version>1.2.17</log4j-version>
+
+        <metrics.version>3.1.0</metrics.version>
+    </properties>
+
+    <dependencies>
+
+
+
+        <!-- metrics -->
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${metrics.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.ryantenney.metrics</groupId>
+            <artifactId>metrics-spring</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-ganglia</artifactId>
+            <version>${metrics.version}</version>
+        </dependency>
+        <!-- metrics end -->
+
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-all</artifactId>
+            <version>5.11.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j-version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.activemq.tooling</groupId>
+                    <artifactId>activemq-maven-plugin</artifactId>
+                    <version>${activemq.version}</version>
+                    <dependencies>
+                        <!-- dependency to pick up resources (e.g. log4j.properties) on classpath -->
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <profile>
+            <id>broker-failover1</id>
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-failover1.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>broker-failover2</id>
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-failover2.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>consumer</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleConsumer</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>producer</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleProducer</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Network of Broker Producer and Consumer -->
+        <profile>
+            <id>broker-nwob1</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob1.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>broker-nwob2</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob2.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>consumer-nwob</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleConsumer</mainClass>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>java.naming.provider.url</key>
+                                            <value>failover:(tcp://localhost:61616)</value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>producer-nwob</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleProducer</mainClass>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>java.naming.provider.url</key>
+                                            <value>failover:(tcp://localhost:62626)</value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Network of Broker Master/Slave Producer and Consumer -->
+        <profile>
+            <id>broker-nwob-ms1a</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob-ms1a.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>broker-nwob-ms1b</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob-ms1b.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>broker-nwob-ms2a</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob-ms2a.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>broker-nwob-ms2b</id>
+
+            <build>
+                <defaultGoal>activemq:run</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.activemq.tooling</groupId>
+                        <artifactId>maven-activemq-plugin</artifactId>
+                        <configuration>
+                            <configUri>xbean:file:conf/activemq-nwob-ms2b.xml</configUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>consumer-nwob-ms</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleConsumer</mainClass>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>java.naming.provider.url</key>
+                                            <value>
+                                                failover:(tcp://localhost:61616,tcp://localhost:61617)?randomize=false
+                                            </value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>producer-nwob-ms</id>
+            <build>
+                <defaultGoal>package</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.fusesource.examples.activemq.SimpleProducer</mainClass>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>java.naming.provider.url</key>
+                                            <value>
+                                                failover:(tcp://localhost:62626,tcp://localhost:62627)?randomize=false
+                                            </value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+</project>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rideo.app.oauth2.infrastructure.UserRepositoryMyBatis">
+
+    <resultMap type="User" id="userMap">
+    
+        <id property="userId" column="userId"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
+        <result property="userImage" column="userImage"/>
+        <result property="age" column="age"/>
+        <result property="gender" column="gender"/>
+        <result property="phoneNumber" column="phoneNumber"/>
+        <result property="email" column="email"/>
+        <result property="userType" column="userType"/>
+        <result property="thirdPartyUserId" column="thirdPartyUserId"/>
+        <result property="registerDate" column="registerDate"/>
+        <result property="password" column="password"/>
+
+    </resultMap>
+
+    <select id="findUserById" parameterType="String" resultMap="userMap">
+         select * from user where userId = #{userId}
+	</select>
+
+    <select id="findByUsername" parameterType="String" resultMap="userMap">
+         select * from user
+         where username = #{username}
+	</select>
+
+
+    <insert id="saveUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+        insert  into `user`(userId,username,nickname,userImage,age,gender,phoneNumber,email,userType,thirdPartyUserId,registerDate,password) 
+        values 
+        (#{userId},#{username},#{nickname},#{userImage},#{age},#{gender},#{phoneNumber},#{email},#{userType},#{thirdPartyUserId},#{registerDate},#{password)
+    </insert>
+
+    <update id="updateUser" parameterType="User" flushCache="true">
+        update user set
+        nickname = #{nickname},
+        userImage = #{userImage},
+        age = #{age},
+        gender = #{gender},
+        phoneNumber = #{phoneNumber},
+        email = #{email},
+        password = #{password},
+        where username = #{username}
+    </update>
+
+</mapper>

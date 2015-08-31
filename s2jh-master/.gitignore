@@ -1,0 +1,8 @@
+target
+build
+rebel.xml
+/prototype/runtime/work
+/prototype/runtime/h2
+/prototype/runtime/prototype.war
+*.jasper
+/*.war
