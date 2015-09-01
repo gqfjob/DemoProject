@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security
+                        http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+    <!--<debug/>-->
+
+    <!--static url pattern-->
+    <http pattern="/resources/**" security="none"/>
+
+
+    <http auto-config="true" authentication-manager-ref="authenticationManager"
+          access-denied-page="/login.hb?error=2">
+
+        <intercept-url pattern="/instance/instance_form.hb*" access="ROLE_CREATE_EDIT_INSTANCE"/>
+        <intercept-url pattern="/instance/delete.hb*" access="ROLE_DELETE_INSTANCE"/>
+
+        <intercept-url pattern="/instance/enable.hb*" access="ROLE_START_STOP_INSTANCE"/>
+        <intercept-url pattern="/instance/stop.hb*" access="ROLE_START_STOP_INSTANCE"/>
+
+        <intercept-url pattern="/user/**" access="ROLE_USER_MANAGEMENT"/>
+        <intercept-url pattern="/system/setting.hb*" access="ROLE_SYSTEM_SETTING"/>
+
+
+        <intercept-url pattern="/user_profile.hb*" access="ROLE_DEFAULT"/>
+
+
+        <form-login authentication-failure-url="/login.hb?error=1" username-parameter="username"
+                    password-parameter="password"
+                    login-processing-url="/login" login-page="/login.hb"/>
+
+        <logout logout-success-url="/index.hb" logout-url="/logout"/>
+    </http>
+
+    <authentication-manager id="authenticationManager">
+        <authentication-provider user-service-ref="userService">
+            <password-encoder hash="md5"/>
+        </authentication-provider>
+    </authentication-manager>
+
+    <!--security holder-->
+    <beans:bean id="springSecurityHolder" class="com.andaily.web.context.SpringSecurityHolder"/>
+
+    <beans:bean class="com.andaily.domain.shared.security.SecurityUtils">
+        <beans:property name="securityHolder" ref="springSecurityHolder"/>
+    </beans:bean>
+
+</beans:beans>

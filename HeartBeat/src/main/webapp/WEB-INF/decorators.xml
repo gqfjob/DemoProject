@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<decorators defaultdir="/WEB-INF/jsp/decorators">
+
+    <!--main decorator-->
+    <decorator name="main" page="main.jsp">
+        <pattern>/*</pattern>
+    </decorator>
+
+
+    <excludes>
+        <pattern>/resources/**</pattern>
+        <pattern>/load_addition_monitor_logs.hb**</pattern>
+        <pattern>/monitoring/statistics/*.hb*</pattern>
+
+        <pattern>/user/reset_password/*.hb*</pattern>
+        <pattern>/user/delete/*.hb*</pattern>
+
+        <pattern>/login.hb*</pattern>
+    </excludes>
+
+</decorators>
